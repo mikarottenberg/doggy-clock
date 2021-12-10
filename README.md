@@ -1,9 +1,9 @@
-##Doggy Clock
+## Doggy Clock
 
 Self-contained static html site using relative links.
 
-The file /video/PauliLib-1080-608-60.mp4 (~370mb) was replaced with a placeholder text file that contains the IPFS pointer to the .mp4 file, as well as the SHA256 hash of the .mp4 file.
+Home page is ./doggyClock.html
 
-If recreating the site, you will need to replace the text placeholder in /video/ with the actual mp4 file (PauliLib-1080-608-60.mp4).
+Assets greater than 30MB were replaced with text files containing the original file name, an IPFS cid for the file as well as the sha256 of the blob for the file.
 
-The home / index page for the site is /menu.html.
+When reconstructing the site from the git repo, you will need to replace these text files with the full files indicated in the replacement text files

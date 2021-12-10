@@ -1,0 +1,3 @@
+filename: clockNFTAnomaly.mov
+sha256: 69c229d886b8b63132fb112fa3c7ba19575b21a83ecdf438c9ac85a39acdd3e8
+ipfs_cid: QmZHqcPBL6fGkVXXGcUAB5B6NMdVAYhqXw4KaXx8iWvRcM

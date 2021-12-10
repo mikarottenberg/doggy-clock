@@ -1,0 +1,3 @@
+filename: clockNFTBaseline.webm
+sha256: fecde05c452b69b2b63fbce9d2d5f615cb3ff287af12e116b1d09689e13b6c93
+ipfs_cid: QmRo9tHjNV3qVcC9cCeSR2YKZrr7UDSwN23Kh1sC2r4sqM

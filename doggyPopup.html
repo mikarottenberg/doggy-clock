@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doggyclock</title>
+  <style>
+    @font-face {
+      font-family: 'albertaregular';
+      src: url('assets/alberta-webfont.woff2') format('woff2'),
+           url('assets/alberta-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      background: black;
+      padding: 0px;
+      margin: 0px;
+    }
+
+    p {
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      font-family: 'albertaregular';
+      font-size: 3em;
+    }
+
+    p:hover{
+      text-decoration:underline;
+    }
+
+    #linkText {
+      position: absolute;
+      top: 30vh;
+      left: 0vw;
+      width: 100vw;
+    }
+
+    #bubbles1 {
+      position: absolute;
+      top: 25vh;
+      left: 30vw;
+    }
+
+    .bubbles {
+      width: 5em;
+      height: auto;
+    }
+
+    .wiggle {
+      animation: wiggle 6s linear infinite;
+      transform: rotateZ(0);
+    }
+
+    @keyframes wiggle {
+      0%, 50%, 100% {
+        transform: rotateZ(0deg);
+      }
+
+      25% {
+        transform: rotateZ(-25deg);
+      }
+
+      75% {
+        transform: rotateZ(25deg);
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div id="bubbles1">
+    <img src="assets/bubbles.png" class="bubbles wiggle">
+  </div>
+  <div id="linkText">
+    <p id="PopupDemo">OPEN DOGGY CLOCK</p>
+  </div>
+
+
+  <script type="text/javascript">
+    document.getElementById("PopupDemo").onclick = function(){
+      console.log("foo");
+      var doggyWindow = window.open("doggyClock.html", "", "width=600, height=600, directories=no, titlebar=no, toolbar=no, location=no, status=no, menubar=no, scrollbars=no");
+      var posX = window.screen.width/2 - 300;
+      var posY = window.screen.height/2 - 300;
+      doggyWindow.moveTo(posX, posY);
+      doggyWindow.focus();
+    };
+  </script>
+</body>
+</html>

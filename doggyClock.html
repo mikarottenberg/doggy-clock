@@ -1,0 +1,479 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doggyclock</title>
+
+  <style>
+    @font-face {
+      font-family: 'albertaregular';
+      src: url('assets/alberta-webfont.woff2') format('woff2'),
+           url('assets/alberta-webfont.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden
+    }
+
+    body {
+      background: black;
+      background-attachment: fixed;
+      padding: 0px;
+      margin: 0px;
+    }
+
+    .clockContainer {
+      position: absolute;
+      top: 0;
+      left: 50vw;
+      overflow: auto;
+      /*max-width: 100%;
+      height: auto;*/
+      width: 177.777778vh;
+      height: 100vh;
+      margin: 0px;
+      transform: translateX(-50%);
+    }
+
+    .clockContainerInner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /*padding-bottom: 56.25%;*/
+    }
+
+
+    video, .backgroundImage {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+    }
+
+    .clockHand {
+      position: absolute;
+      left: 50.311vh;
+      top: 7.11111111vh;
+      width: 37.33333333vh;
+      height: 37.33333333vh;
+      transition-property: transform;
+      transition-duration: .5s;
+    }
+
+    .clockHandImage {
+      width: 100%;
+    }
+
+    #clockHandHour {
+    }
+
+    #clockHandMinute {
+
+    }
+    #clockHandSecond {
+
+    }
+
+    #anomalyVid {
+      opacity: 0;
+      transition-property: opacity;
+      transition-duration: .5s;
+    }
+
+
+    @supports (mix-blend-mode: screen) {
+      #steamBlended {
+        visibility: visible;
+        mix-blend-mode: screen;
+        opacity: 0.5;
+      }
+      #steamFallback {
+        visibility: hidden;
+      }
+    }
+
+    @supports not (mix-blend-mode: screen) {
+      #steamBlended {
+        visibility: hidden
+      }
+      #steamFallback {
+        opacity: 0.25;
+        visibility: visible;
+      }
+    }
+
+
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+
+
+      color: white;
+      text-decoration: none;
+      text-align: center;
+      font-family: 'albertaregular';
+      font-size: 2em;
+
+      opacity: 1;
+      transition-property: opacity;
+      transition-duration: 0.5s;
+    }
+
+    #overlay.active p:hover{
+      text-decoration:underline;
+    }
+
+    #overlay.clicked {
+      opacity: 0;
+    }
+
+    #overlay .overText {
+      position: absolute;
+      top: 33vh;
+      width: 100%;
+    }
+    #overlay .overBubble1 {
+      position: absolute;
+      top: 20%;
+      left: 25%;
+    }
+    #overlay .overBubble2 {
+      position: absolute;
+      bottom: 20%;
+      right: 25%;
+    }
+
+
+    .wiggle {
+      animation: wiggle 6s linear infinite;
+      transform: rotateZ(0);
+    }
+
+    @keyframes wiggle {
+      0%, 50%, 100% {
+        transform: rotateZ(0deg);
+      }
+
+      25% {
+        transform: rotateZ(-25deg);
+      }
+
+      75% {
+        transform: rotateZ(25deg);
+      }
+    }
+
+    .pulse {
+      animation: pulse 2.8s ease-in-out infinite alternate;
+      transform: scale3d(1,1,1);
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale3d(1,1,1);
+      }
+
+      100% {
+        transform: scale3d(1.5,1.5,1.5);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="clockContainer">
+    <div class="clockContainerInner">
+
+      <video autoplay="autoplay" loop="loop" muted="muted" playsinline>
+        <source src="assets/clockNFT_BG.webm" type="video/webm">
+        <source src="assets/clockNFT_BG.mov" type="video/quicktime">
+      </video>
+
+      <div class="clockHand shadowed" id="clockHandHour">
+        <img class="clockHandImage" src="assets/Hours.png">
+      </div>
+      <div class="clockHand shadowed" id="clockHandMinute">
+        <img class="clockHandImage" src="assets/Minutes.png">
+      </div>
+      <div class="clockHand shadowed" id="clockHandSecond">
+        <img class="clockHandImage" src="assets/Seconds.png">
+      </div>
+
+      <img src="assets/bgFiller.png" class="backgroundImage">
+
+      <video autoplay="autoplay" muted="muted" loop playsinline id="baselineVid">
+        <source src="assets/clockNFTBaseline.webm?v=2" type="video/webm">
+        <source src="assets/clockNFTBaseline.mov?v=2" type="video/quicktime">
+      </video>
+
+      <video playsinline id="anomalyVid">
+        <source src="assets/clockNFTAnomaly.webm" type="video/webm">
+        <source src="assets/clockNFTAnomaly.mov" type="video/quicktime">
+      </video>
+
+
+      <video playsinline autoplay="autoplay" loop muted="muted" id="steamBlended" class="steamVid">
+        <source src="assets/steamScreen.mov" type="video/quicktime">
+        <source src="assets/steamScreen.webm" type="video/webm">
+      </video>
+
+      <div id="overlay">
+        <div class="overText pulse" id="overText">
+          <p id="infoText">Loading</p>
+        </div>
+        <div class="overBubble1 wiggle">
+          <img src="assets/bubbles.png" width="100px">
+        </div>
+        <div class="overBubble2 wiggle">
+          <img src="assets/bubbles.png" width="100px">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="text/javascript">
+
+    if(!document.getElementsByClassName) {
+    document.getElementsByClassName = function(className) {
+        return this.querySelectorAll("." + className);
+    };
+    Element.prototype.getElementsByClassName = document.getElementsByClassName;
+}
+
+
+    //Animation Loop Vars
+    var stop = false;
+    var frameCount = 0;
+    var fps, fpsInterval, startTime, now, then, deltaTime;
+    var secDegrees = 0;
+    var minDegrees = 0;
+    var hourDegrees = 0;
+
+    //Artwork Vars
+    var isAnomaly = false;
+
+    var isReadyToPlay = false;
+    var videoReadyCount = 0;
+
+    const baselineVid = document.getElementById("baselineVid");
+    const anomalyVid = document.getElementById("anomalyVid");
+
+    baselineVid.load();
+    anomalyVid.load();
+
+    baselineVid.addEventListener('loadstart', (event) => {
+      console.log('Baseline loadstart.');
+    });
+    anomalyVid.addEventListener('loadstart', (event) => {
+      console.log('Anomaly loadstart.');
+    });
+
+
+    // Could do a progress bar if we want....
+    baselineVid.addEventListener('progress', function() {
+        var range = 0;
+        var bf = this.buffered;
+        var time = this.currentTime;
+
+        while(!(bf.start(range) <= time && time <= bf.end(range))) {
+            console.log("foo");
+            range += 1;
+        }
+        var loadStartPercentage = bf.start(range) / this.duration;
+        var loadEndPercentage = bf.end(range) / this.duration;
+        var loadPercentage = loadEndPercentage - loadStartPercentage;
+        console.log("Baseline load progress: " + loadPercentage);
+    });
+
+    baselineVid.addEventListener("timeupdate", function () {
+        if(this.currentTime >= 310.0) {
+            this.currentTime = 10.0;
+        }
+    });
+
+
+    // But would rather wait for canplay
+    baselineVid.addEventListener('canplay', (event) => {
+      console.log('Baseline OnCanPlay.');
+      videoReadyCount++;
+    });
+    anomalyVid.addEventListener('canplay', (event) => {
+      console.log('Anomaly OnCanPlay.');
+      videoReadyCount++;
+    });
+
+
+    document.getElementById("overlay").onclick = function(){
+      if (isReadyToPlay) {
+        console.log("Starting...");
+        this.classList.add('clicked');
+        // baselineVid.muted = false; //Mika wanted this muted always
+      }
+    };
+
+    anomalyVid.onended = (event) => {
+      console.log('Anomaly over');
+      StopAnomaly();
+    };
+
+    RunAnomalyAt707();
+
+    // Start running at desired FPS
+    StartAnimating(1);
+
+    //----------------------------------------------------
+
+    function StartAnimating(fps) {
+      fpsInterval = 1000 / fps;
+      then = window.performance.now();
+      startTime = then;
+      Animate();
+    }
+
+
+    function Animate(newtime) {
+      if (stop) {return;}
+      requestAnimationFrame(Animate);
+
+      now = newtime;
+      deltaTime = now - then;
+
+      if (deltaTime > fpsInterval) {
+
+
+        then = now - (deltaTime % fpsInterval);
+
+        if (isAnomaly === false) {
+          // baselineVid.play();
+
+          if (!isReadyToPlay && videoReadyCount >= 2) {
+            isReadyToPlay = true;
+            document.getElementById("infoText").innerText = "Click Here to Open Clock";
+            document.getElementById("overText").classList.remove("pulse");
+            document.getElementById("overlay").classList.add("active");
+          }
+
+          if (RunAnomalyAt707()) {
+            StartAnomaly();
+          }
+
+          var d = new Date();
+          d.getHours();
+          d.getMinutes();
+
+
+          secDegrees = ClosestEquivalentAngle(secDegrees, (d.getSeconds() * 6));
+          minDegrees = ClosestEquivalentAngle(minDegrees, (d.getMinutes() * 6));
+          hourDegrees = ClosestEquivalentAngle(hourDegrees, ((d.getHours() * 30) + (30 * d.getMinutes()/60) ));
+
+          SetAngleAndShadowParams("clockHandSecond", secDegrees);
+          SetAngleAndShadowParams("clockHandMinute", minDegrees);
+          SetAngleAndShadowParams("clockHandHour", hourDegrees);
+        }
+
+      }
+
+
+    }
+
+    function ClosestEquivalentAngle(from, to) {
+      var delta = ((((to - from) % 360) + 540) % 360) - 180;
+      return from + delta;
+    }
+
+    function SetAngleAndShadowParams(elementID, angle) {
+      var elem = document.getElementById(elementID);
+      elem.style.transform = "rotate(" + angle + "deg)";
+    }
+
+    function StartAnomaly() {
+      if (isAnomaly) {return;}
+
+      console.log('Anomaly beginning');
+      baselineVid.pause();
+      anomalyVid.play();
+      anomalyVid.style.opacity = 1;
+      isAnomaly = true;
+
+      var clockHands = document.getElementsByClassName('clockHand');
+      for (var i = 0; i < clockHands.length; i++) {
+        clockHands[i].style.transitionDuration = '45s';
+      }
+
+      secDegrees = GetRandomArbitrary(-30000,-10000);
+      minDegrees = GetRandomArbitrary(-30000,-10000);
+      hourDegrees = GetRandomArbitrary(-30000,-10000);
+
+      SetAngleAndShadowParams("clockHandSecond", secDegrees);
+      SetAngleAndShadowParams("clockHandMinute", minDegrees);
+      SetAngleAndShadowParams("clockHandHour", hourDegrees);
+    }
+
+    function StopAnomaly() {
+      if (!isAnomaly) {return;}
+      console.log("Post anomaly reset");
+      baselineVid.play();
+      anomalyVid.pause();
+      anomalyVid.style.opacity = 0;
+      anomalyVid.currentTime = 0;
+      isAnomaly = false;
+
+      var clockHands = document.getElementsByClassName('clockHand');
+      for (var i = 0; i < clockHands.length; i++) {
+        clockHands[i].style.transitionDuration = '.5s';
+      }
+    }
+
+    function CalcSeoulTime() {
+        // create Date object for current location
+        var d = new Date();
+
+        // Convert to msec
+        // Subtract local time zone offset
+        // Get UTC time in msec
+        var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+
+        // Create new Date object for +9 (Seoul is UTC +9)
+        var nd = new Date(utc + (3600000*9));
+
+        // Debug output:
+        //console.log("The local time in Seoul is "+ nd.toLocaleString());
+
+        // return time
+        return nd;
+    }
+
+    function RunAnomalyAt707() {
+      if (!isReadyToPlay) { return false; }
+
+      const seoulDateTime = CalcSeoulTime();
+      //console.log(seoulDateTime.getHours());
+      //console.log(seoulDateTime.getMinutes());
+
+      if (seoulDateTime.getHours() == 19 && seoulDateTime.getMinutes() == 7) {
+        return true;
+      }
+      return false;
+    }
+
+    function GetRandomArbitrary(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+  </script>
+</body>
+</html>
